@@ -1,0 +1,308 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+
+public class DialogueTreeEditorWindow : EditorWindow
+{
+    public List<BaseNode> windows = new List<BaseNode>();
+
+    private Vector2 mousePos;
+    private Vector2 rightClickPos;
+
+    private BaseNode selectedNode;
+
+    private bool makeTransitionMode = false;
+
+    private DialogueTree currentTree;
+    public void ShowEditor(DialogueTree dialogueTree)
+    {
+        currentTree = dialogueTree;
+        DialogueTreeEditorWindow editor = GetWindow<DialogueTreeEditorWindow>();
+        editor.Show();
+        DisplayTree();
+    }
+
+    private void OnGUI()
+    {
+        if (windows.Count == 0)
+        {
+            Rect box = new Rect();
+            box.center = new Vector2(position.width / 2, position.height / 2);
+            GUI.Box(box, "No Dialogue Yet");
+        }
+
+        Event e = Event.current;
+
+        mousePos = e.mousePosition;
+
+        if (e.button == 1 && !makeTransitionMode)
+        {
+            if (e.type == EventType.MouseDown)
+            {
+                bool clickedOnWindow = false;
+                int selectedIndex = -1;
+
+                for (int i = 0; i < windows.Count; i++)
+                {
+                    if (windows[i].windowRect.Contains(mousePos))
+                    {
+                        selectedIndex = i;
+                        clickedOnWindow = true;
+                        break;
+                    }
+                }
+
+                if (!clickedOnWindow)
+                {
+                    GenericMenu menu = new GenericMenu();
+
+                    menu.AddItem(new GUIContent("Add Dialogue Node"), false, ContextCallback, "dialogue");
+                    menu.AddItem(new GUIContent("Add Choice Node"), false, ContextCallback, "choice");
+
+                    menu.ShowAsContext();
+                    e.Use();
+                }
+                else
+                {
+                    rightClickPos = e.mousePosition;
+
+                    GenericMenu menu = new GenericMenu();
+
+                    menu.AddItem(new GUIContent("Make Transition"), false, ContextCallback, "makeTransition");
+                    menu.AddSeparator("");
+                    menu.AddItem(new GUIContent("Delete Node"), false, ContextCallback, "deleteNode");
+
+                    menu.ShowAsContext();
+                    e.Use();
+                }
+            }
+        }
+        else if (e.button == 0 && e.type == EventType.MouseDown && makeTransitionMode)
+        {
+            bool clickedOnWindow = false;
+            int selectedIndex = -1;
+
+            for (int i = 0; i < windows.Count; i++)
+            {
+                if (windows[i].windowRect.Contains(mousePos))
+                {
+                    selectedIndex = i;
+                    clickedOnWindow = true;
+                    break;
+                }
+            }
+
+            if (clickedOnWindow && !windows[selectedIndex].Equals(selectedNode))
+            {
+                windows[selectedIndex].SetInput(selectedNode, mousePos);
+                windows[windows.IndexOf(selectedNode)].SetOutput(windows[selectedIndex], rightClickPos);
+                makeTransitionMode = false;
+
+                selectedNode = null;
+            }
+
+            if (!clickedOnWindow)
+            {
+                makeTransitionMode = false;
+                selectedNode = null;
+            }
+
+            e.Use();
+        }
+
+        if (makeTransitionMode && selectedNode != null)
+        {
+            Rect mouseRect = new Rect(e.mousePosition.x, e.mousePosition.y, 10, 10);
+
+            DrawNodeCurve(selectedNode.windowRect, mouseRect);
+
+            Repaint();
+        }
+
+        foreach (BaseNode n in windows)
+        {
+            n.DrawCurves();
+        }
+
+        BeginWindows();
+        
+        for (int i = 0; i < windows.Count; i++)
+        {
+            windows[i].windowRect = GUI.Window(i, windows[i].windowRect, DrawNodeWindow, windows[i].windowTitle);
+        }
+        
+        EndWindows();
+    }
+
+    private void DrawNodeWindow(int id)
+    {
+        windows[id].DrawWindow();
+        GUI.DragWindow();
+    }
+
+    private void ContextCallback(object obj)
+    {
+        string clb = obj.ToString();
+        bool clickedOnWindow = false;
+        int selectedIndex = -1;
+        switch (clb)
+        {
+            case "dialogue":
+                DialogueNode dialogue = CreateInstance<DialogueNode>();
+                dialogue.windowRect = new Rect(mousePos.x, mousePos.y, 300, 300);
+                dialogue.index = windows.Count;
+
+                windows.Add(dialogue);
+                break;
+            case "choice":
+                ChoiceNode choice = CreateInstance<ChoiceNode>();
+                choice.windowRect = new Rect(mousePos.x, mousePos.y, 300, 300);
+                choice.index = windows.Count;
+
+                windows.Add(choice);
+                break;
+            case "makeTransition":
+
+                for (int i = 0; i < windows.Count; i++)
+                {
+                    if (windows[i].windowRect.Contains(mousePos))
+                    {
+                        selectedIndex = i;
+                        clickedOnWindow = true;
+                        break;
+                    }
+                }
+
+                if (clickedOnWindow)
+                {
+                    selectedNode = windows[selectedIndex];
+                    makeTransitionMode = true;
+                }
+                break;
+            case "deleteNode":
+                clickedOnWindow = false;
+                selectedIndex = -1;
+
+                for (int i = 0; i < windows.Count; i++)
+                {
+                    if (windows[i].windowRect.Contains(mousePos))
+                    {
+                        selectedIndex = i;
+                        clickedOnWindow = true;
+                        break;
+                    }
+                }
+
+                if (clickedOnWindow)
+                {
+                    BaseNode selNode = windows[selectedIndex];
+                    windows.RemoveAt(selectedIndex);
+
+                    foreach(BaseNode n in windows)
+                    {
+                        n.NodeDeleted(selNode);
+                    }
+                }
+                break;
+        }
+    }
+
+    internal static void DrawNodeCurve(Rect start, Rect end)
+    {
+        Vector2 startPos = new Vector2(start.x + (start.width / 2), start.y + (start.height / 2));
+        Vector2 endPos = new Vector2(end.x + (end.width / 2), end.y + (end.height / 2));
+        Vector2 startTan = startPos + Vector2.right * 50;
+        Vector2 endTan = endPos + Vector2.left * 50;
+        Color shadowCol = new Color(0, 0, 0, 0.06f);
+
+        for (int i = 0; i < 3; i++)
+        {
+            Handles.DrawBezier(startPos, endPos, startTan, endTan, shadowCol, null, (i + 1) * 5);
+        }
+
+        Handles.DrawBezier(startPos, endPos, startTan, endTan, Color.blue, null, 1);
+    }
+
+    void DisplayTree()
+    {
+        windows.Clear();
+
+        foreach(IDialogueTreeElementInfo elementInfo in currentTree.serializedDialogueTree)
+        {
+            DialogueNode newDialogue = null;
+            ChoiceNode newChoice = null;
+
+            if (elementInfo is DialogueElementInfo)
+            {
+                DialogueElementInfo dialogue = (DialogueElementInfo)elementInfo;
+
+                newDialogue = CreateInstance<DialogueNode>();
+                newDialogue.windowRect = dialogue.WindowRect;
+                newDialogue.index = dialogue.Index;
+                newDialogue.inputRects = dialogue.InputRects;
+                newDialogue.outputRects = dialogue.OutputRects;
+                newDialogue.sentences = dialogue.Sentences;
+
+                windows.Add(newDialogue);
+            }
+            else if (elementInfo is ChoiceElementInfo)
+            {
+                ChoiceElementInfo choice = (ChoiceElementInfo)elementInfo;
+
+                newChoice = CreateInstance<ChoiceNode>();
+                newChoice.windowRect = choice.WindowRect;
+                newChoice.index = choice.Index;
+                newChoice.inputRects = choice.InputRects;
+                newChoice.outputRects = choice.OutputRects;
+                newChoice.prompt = choice.Prompt;
+                newChoice.numChoices = choice.NumChoices;
+                newChoice.choices = choice.Choices;
+                newChoice.choiceRects = choice.ChoiceRects;
+
+                windows.Add(newChoice);
+            }
+        }
+
+        for (int i = 0; i < windows.Count; i++)
+        {
+            IDialogueTreeElementInfo info = currentTree.serializedDialogueTree[i];
+
+            // Sets inputs
+            for (int j = 0; j < info.InputIndexes.Count; j++)
+            {
+                if (!windows[i].inputs.Contains(windows[info.InputIndexes[j]]))
+                {
+                    windows[i].inputs.Add(windows[info.InputIndexes[j]]);
+                }
+            }
+
+            // Sets outputs
+            for (int j = 0; j < info.OutputIndexes.Count; j++)
+            {
+                if (!windows[i].outputs.Contains(windows[info.OutputIndexes[j]]))
+                {
+                    windows[i].outputs.Add(windows[info.OutputIndexes[j]]);
+                }
+            }
+
+            if (windows[i] is ChoiceNode)
+            {
+                ChoiceElementInfo cInfo = (ChoiceElementInfo)info;
+
+                // Copy of node to edit
+                ChoiceNode choice = windows[i] as ChoiceNode;
+
+                // sets outputs with corresponding choice
+                for (int j = 0; j < cInfo.ChoiceDialogueKeys.Count; j++)
+                {
+                    choice.choiceNodePair.Add(j, windows[cInfo.ChoiceDialogueValues[j]]);
+                }
+
+                // Rewrites previous node
+                windows[i] = choice;
+            }
+        }
+    }
+}

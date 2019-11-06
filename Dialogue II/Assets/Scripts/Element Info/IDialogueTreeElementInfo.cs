@@ -1,0 +1,61 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// TODO: Delete this and make a single file for the struct
+/// <summary>
+/// Base for serializable dialogue tree elements
+/// </summary>
+public interface IDialogueTreeElementInfo
+{
+    #region Properties
+    /// <summary>
+    /// Location in dialogue tree
+    /// </summary>
+    int Index { get; set; }
+    /// <summary>
+    /// Rect of node in Dialogue Tree Editor Window
+    /// </summary>
+    Rect WindowRect { get; set; }
+
+    /// <summary>
+    /// Number of inputs connected to node
+    /// </summary>
+    int InputCount { get; set; }
+
+    /// <summary>
+    /// Rect of inputs in Dialogue Tree Editor Window
+    /// </summary>
+    List<Rect> InputRects { get; set; }
+
+    /// <summary>
+    /// Location of inputs in dialogue tree
+    /// </summary>
+    List<int> InputIndexes { get; set; }
+
+    /// <summary>
+    /// Number of outputs node has
+    /// </summary>
+    int OutputCount { get; set; }
+
+    /// <summary>
+    /// Rect of outputs in Dialogue Tree Editor Window
+    /// </summary>
+    List<Rect> OutputRects { get; set; }
+
+    /// <summary>
+    /// Location of outputs in dialogue tree
+    /// </summary>
+    List<int> OutputIndexes { get; set; }
+
+    /// <summary>
+    /// Location of first input in dialogue tree
+    /// </summary>
+    int IndexofFirstInput { get; set; }
+
+    /// <summary>
+    /// Location of first output in dialogue Tree
+    /// </summary>
+    int IndexOfFirstOutput { get; set; }
+    #endregion
+}
