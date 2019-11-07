@@ -24,6 +24,11 @@ public class DialogueTreeEditorWindow : EditorWindow
         DisplayTree();
     }
 
+    private void OnEnable()
+    {
+        DisplayTree();
+    }
+
     private void OnGUI()
     {
         if (windows.Count == 0)
@@ -239,10 +244,13 @@ public class DialogueTreeEditorWindow : EditorWindow
                 DialogueElementInfo dialogue = (DialogueElementInfo)elementInfo;
 
                 newDialogue = CreateInstance<DialogueNode>();
-                newDialogue.windowRect = dialogue.WindowRect;
+
+                newDialogue.windowRect = new Rect(dialogue.WindowRect.x, dialogue.WindowRect.y, 300, 300);
                 newDialogue.index = dialogue.Index;
-                newDialogue.inputRects = dialogue.InputRects;
-                newDialogue.outputRects = dialogue.OutputRects;
+                if (dialogue.HasInputs)
+                    newDialogue.inputRects = dialogue.InputRects;
+                if (dialogue.HasOutputs)
+                    newDialogue.outputRects = dialogue.OutputRects;
                 newDialogue.sentences = dialogue.Sentences;
 
                 windows.Add(newDialogue);
@@ -252,10 +260,12 @@ public class DialogueTreeEditorWindow : EditorWindow
                 ChoiceElementInfo choice = (ChoiceElementInfo)elementInfo;
 
                 newChoice = CreateInstance<ChoiceNode>();
-                newChoice.windowRect = choice.WindowRect;
+                newChoice.windowRect = new Rect(choice.WindowRect.x, choice.WindowRect.y, 300, 300);
                 newChoice.index = choice.Index;
-                newChoice.inputRects = choice.InputRects;
-                newChoice.outputRects = choice.OutputRects;
+                if (choice.HasInputs)
+                    newChoice.inputRects = choice.InputRects;
+                if (choice.HasOutputs)
+                    newChoice.outputRects = choice.OutputRects;
                 newChoice.prompt = choice.Prompt;
                 newChoice.numChoices = choice.NumChoices;
                 newChoice.choices = choice.Choices;
@@ -270,7 +280,7 @@ public class DialogueTreeEditorWindow : EditorWindow
             IDialogueTreeElementInfo info = currentTree.serializedDialogueTree[i];
 
             // Sets inputs
-            for (int j = 0; j < info.InputIndexes.Count; j++)
+            for (int j = 0; j < info.InputCount; j++)
             {
                 if (!windows[i].inputs.Contains(windows[info.InputIndexes[j]]))
                 {
@@ -279,7 +289,7 @@ public class DialogueTreeEditorWindow : EditorWindow
             }
 
             // Sets outputs
-            for (int j = 0; j < info.OutputIndexes.Count; j++)
+            for (int j = 0; j < info.OutputCount; j++)
             {
                 if (!windows[i].outputs.Contains(windows[info.OutputIndexes[j]]))
                 {

@@ -57,5 +57,15 @@ public interface IDialogueTreeElementInfo
     /// Location of first output in dialogue Tree
     /// </summary>
     int IndexOfFirstOutput { get; set; }
+
+    /// <summary>
+    /// Does this node have any inputs?
+    /// </summary>
+    bool HasInputs { get; set; }
+
+    /// <summary>
+    /// Does node have any outputs?
+    /// </summary>
+    bool HasOutputs { get; set; }
     #endregion
 }

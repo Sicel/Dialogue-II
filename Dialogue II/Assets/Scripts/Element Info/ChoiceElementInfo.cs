@@ -57,6 +57,16 @@ public struct ChoiceElementInfo : IDialogueTreeElementInfo
     /// See <see cref="IDialogueTreeElementInfo.IndexOfFirstOutput"/>
     /// </summary>
     public int IndexOfFirstOutput { get; set; }
+
+    /// <summary>
+    /// See <see cref="IDialogueTreeElementInfo.HasInputs"/>
+    /// </summary>
+    public bool HasInputs { get => InputCount > 0 ? true : false; set => HasInputs = value; }
+
+    /// <summary>
+    /// See <see cref="IDialogueTreeElementInfo.HasOutputs"/>
+    /// </summary>
+    public bool HasOutputs { get => OutputCount > 0 ? true : false; set => HasOutputs = value; }
     #endregion
 
     #region Choice Properties

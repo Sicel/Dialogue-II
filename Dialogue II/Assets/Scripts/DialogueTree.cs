@@ -20,7 +20,12 @@ public class DialogueTree : ISerializationCallbackReceiver
     {
         if (startingDialogue == null)
         {
-            startingDialogue = new DialogueElement();
+            startingDialogue = new DialogueElement()
+            {
+                sentences = new List<string>(),
+                inputs = new List<DialogueTreeElement>(),
+                ouputs = new List<DialogueTreeElement>(),
+            };
         }
         serializedDialogueTree.Clear();
         AddNextDialogue(startingDialogue);
