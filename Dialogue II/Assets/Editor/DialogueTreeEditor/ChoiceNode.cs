@@ -13,9 +13,16 @@ public class ChoiceNode : BaseNode
     public List<Rect> choiceRects;
     public Dictionary<int, BaseNode> choiceNodePair;
 
-    public ChoiceElementInfo Element {
+    public ChoiceElementInfo Element
+    {
         get { return (ChoiceElementInfo)dialogueTreeElement; }
-        //set { Element = value; }
+        set { dialogueTreeElement = value; }
+    }
+
+    public ChoiceElement ElementE
+    {
+        get => (ChoiceElement)treeElement;
+        set => treeElement = value;
     }
 
     public int NumChoices { get => choices.Count; }
@@ -245,6 +252,6 @@ public class ChoiceNode : BaseNode
         choiceElement.Prompt = prompt;
         choiceElement.Choices = choices;
         choiceElement.ChoiceRects = choiceRects;
-        //Element = choiceElement;
+        Element = choiceElement;
     }
 }

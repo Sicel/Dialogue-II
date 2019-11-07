@@ -9,6 +9,7 @@ public abstract class BaseNode : ScriptableObject
     public int index; // Location in list
 
     public IDialogueTreeElementInfo dialogueTreeElement;
+    public DialogueTreeElement treeElement;
 
     // Inputs
     public List<BaseNode> inputs;
@@ -37,7 +38,7 @@ public abstract class BaseNode : ScriptableObject
     /// <summary>
     /// Adds node to input list
     /// </summary>
-    /// <param name="input">Node being added to inputs</param>
+    /// <param name="input">Node being added to input</param>
     /// <param name="clickPos">Where mouse clicked</param>
     public virtual void SetInput(BaseNode input, Vector2 clickPos)
     {
@@ -49,6 +50,15 @@ public abstract class BaseNode : ScriptableObject
             return;
         }
 
+        SetInput(input);
+    }
+
+    /// <summary>
+    /// Adds node as to input
+    /// </summary>
+    /// <param name="input">Node being added as input</param>
+    public virtual void SetInput(BaseNode input)
+    {
         inputs.Add(input);
         inputRects.Add(input.windowRect);
         dialogueTreeElement.InputIndexes.Add(input.index);

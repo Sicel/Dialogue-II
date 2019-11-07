@@ -8,6 +8,7 @@ using UnityEngine;
 public class DialogueTreeElement
 {
     //public int index;
+    public IDialogueTreeElementInfo ElementInfo;
     public List<DialogueTreeElement> inputs = new List<DialogueTreeElement>();
     public List<DialogueTreeElement> ouputs = new List<DialogueTreeElement>();
 }

@@ -20,7 +20,7 @@ public class InteractableEditor : Editor
         if (GUILayout.Button("Open Dialogue Editor"))
         {
             DialogueTreeEditorWindow treeEditorWindow = CreateInstance<DialogueTreeEditorWindow>();
-            treeEditorWindow.ShowEditor(interactable.dialogueTree);
+            treeEditorWindow.ShowEditor(interactable);
             GUIUtility.ExitGUI();
         }
     }

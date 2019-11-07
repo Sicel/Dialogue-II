@@ -8,9 +8,16 @@ public class DialogueNode : BaseNode
     public List<string> sentences;
     public int numSentences;
 
-    public DialogueElementInfo Element {
+    public DialogueElementInfo Element
+    {
         get { return (DialogueElementInfo)dialogueTreeElement; }
-        //set { Element = value; }
+        set { dialogueTreeElement = value; }
+    }
+
+    public DialogueElement ElementE
+    {
+        get => (DialogueElement)treeElement;
+        set => treeElement = value;
     }
 
     public DialogueNode()
@@ -26,6 +33,13 @@ public class DialogueNode : BaseNode
         outputRects = new List<Rect>();
 
         sentences = new List<string>();
+
+        treeElement = new DialogueElement()
+        {
+            inputs = new List<DialogueTreeElement>(),
+            ouputs = new List<DialogueTreeElement>(),
+            sentences = new List<string>()
+        };
 
         dialogueTreeElement = new DialogueElementInfo()
         {
@@ -182,6 +196,6 @@ public class DialogueNode : BaseNode
         DialogueElementInfo dialogueElement = (DialogueElementInfo)dialogueTreeElement;
         dialogueElement.Sentences = sentences;
 
-        //Element = dialogueElement;
+        Element = dialogueElement;
     }
 }

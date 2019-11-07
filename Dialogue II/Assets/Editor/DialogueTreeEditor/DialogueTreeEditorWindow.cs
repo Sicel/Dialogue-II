@@ -14,19 +14,24 @@ public class DialogueTreeEditorWindow : EditorWindow
     private BaseNode selectedNode;
 
     private bool makeTransitionMode = false;
+    private bool makeTransitionIn = false;
+    private bool makeTransitionOut = false;
 
-    private DialogueTree currentTree;
-    public void ShowEditor(DialogueTree dialogueTree)
+    private Interactable gameObject;
+    private List<IDialogueTreeElementInfo> CurrentTree { get => gameObject.dialogueTree.serializedDialogueTree; }
+    public void ShowEditor(Interactable interactable)
     {
-        currentTree = dialogueTree;
+        gameObject = interactable;
         DialogueTreeEditorWindow editor = GetWindow<DialogueTreeEditorWindow>();
+        editor.titleContent.text = interactable.gameObject.name + " DE";
         editor.Show();
         DisplayTree();
     }
 
     private void OnEnable()
     {
-        DisplayTree();
+        if (gameObject)
+            DisplayTree();
     }
 
     private void OnGUI()
@@ -75,7 +80,15 @@ public class DialogueTreeEditorWindow : EditorWindow
 
                     GenericMenu menu = new GenericMenu();
 
-                    menu.AddItem(new GUIContent("Make Transition"), false, ContextCallback, "makeTransition");
+                    // TODO: What items show up depend on which node is being clicked and where on the node it's being clicked
+
+                    menu.AddItem(new GUIContent("Add As Input/Dialogue Node"), false, ContextCallback, "addInDialogue");
+                    menu.AddItem(new GUIContent("Add As Input/Choice Node"), false, ContextCallback, "addInChoice");
+                    menu.AddItem(new GUIContent("Add As Output/Dialogue Node"), false, ContextCallback, "addOutDialogue");
+                    menu.AddItem(new GUIContent("Add As Output/Choice Node"), false, ContextCallback, "addOutChoice");
+                    menu.AddSeparator("");
+                    menu.AddItem(new GUIContent("Make Connection/Input"), false, ContextCallback, "makeTransitionIn");
+                    menu.AddItem(new GUIContent("Make Connection/Output"), false, ContextCallback, "makeTransitionOut");
                     menu.AddSeparator("");
                     menu.AddItem(new GUIContent("Delete Node"), false, ContextCallback, "deleteNode");
 
@@ -101,8 +114,19 @@ public class DialogueTreeEditorWindow : EditorWindow
 
             if (clickedOnWindow && !windows[selectedIndex].Equals(selectedNode))
             {
-                windows[selectedIndex].SetInput(selectedNode, mousePos);
-                windows[windows.IndexOf(selectedNode)].SetOutput(windows[selectedIndex], rightClickPos);
+                if (makeTransitionIn)
+                {
+                    windows[selectedIndex].SetOutput(selectedNode, mousePos);
+                    windows[windows.IndexOf(selectedNode)].SetInput(windows[selectedIndex], rightClickPos);
+                    makeTransitionIn = false;
+                }
+
+                if (makeTransitionOut)
+                {
+                    windows[selectedIndex].SetInput(selectedNode, mousePos);
+                    windows[windows.IndexOf(selectedNode)].SetOutput(windows[selectedIndex], rightClickPos);
+                    makeTransitionOut = false;
+                }
                 makeTransitionMode = false;
 
                 selectedNode = null;
@@ -111,6 +135,8 @@ public class DialogueTreeEditorWindow : EditorWindow
             if (!clickedOnWindow)
             {
                 makeTransitionMode = false;
+                makeTransitionIn = false;
+                makeTransitionOut = false;
                 selectedNode = null;
             }
 
@@ -139,6 +165,8 @@ public class DialogueTreeEditorWindow : EditorWindow
         }
         
         EndWindows();
+
+        EditorUtility.SetDirty(gameObject);
     }
 
     private void DrawNodeWindow(int id)
@@ -160,6 +188,8 @@ public class DialogueTreeEditorWindow : EditorWindow
                 dialogue.index = windows.Count;
 
                 windows.Add(dialogue);
+                // TODO: Update Interactable's dialogue tree
+                CurrentTree.Add(dialogue.Element);
                 break;
             case "choice":
                 ChoiceNode choice = CreateInstance<ChoiceNode>();
@@ -167,9 +197,18 @@ public class DialogueTreeEditorWindow : EditorWindow
                 choice.index = windows.Count;
 
                 windows.Add(choice);
+                CurrentTree.Add(choice.Element);
                 break;
-            case "makeTransition":
-
+            // TODO: Finish implementation
+            case "addInDialogue":
+                break;
+            case "addInChoice":
+                break;
+            case "addOutDialogue":
+                break;
+            case "addOutChoice":
+                break;
+            case "makeTransitionIn":
                 for (int i = 0; i < windows.Count; i++)
                 {
                     if (windows[i].windowRect.Contains(mousePos))
@@ -184,6 +223,25 @@ public class DialogueTreeEditorWindow : EditorWindow
                 {
                     selectedNode = windows[selectedIndex];
                     makeTransitionMode = true;
+                    makeTransitionIn = true;
+                }
+                break;
+            case "makeTransitionOut":
+                for (int i = 0; i < windows.Count; i++)
+                {
+                    if (windows[i].windowRect.Contains(mousePos))
+                    {
+                        selectedIndex = i;
+                        clickedOnWindow = true;
+                        break;
+                    }
+                }
+
+                if (clickedOnWindow)
+                {
+                    selectedNode = windows[selectedIndex];
+                    makeTransitionMode = true;
+                    makeTransitionOut = true;
                 }
                 break;
             case "deleteNode":
@@ -234,7 +292,7 @@ public class DialogueTreeEditorWindow : EditorWindow
     {
         windows.Clear();
 
-        foreach(IDialogueTreeElementInfo elementInfo in currentTree.serializedDialogueTree)
+        foreach(IDialogueTreeElementInfo elementInfo in CurrentTree)
         {
             DialogueNode newDialogue = null;
             ChoiceNode newChoice = null;
@@ -277,7 +335,7 @@ public class DialogueTreeEditorWindow : EditorWindow
 
         for (int i = 0; i < windows.Count; i++)
         {
-            IDialogueTreeElementInfo info = currentTree.serializedDialogueTree[i];
+            IDialogueTreeElementInfo info = CurrentTree[i];
 
             // Sets inputs
             for (int j = 0; j < info.InputCount; j++)
