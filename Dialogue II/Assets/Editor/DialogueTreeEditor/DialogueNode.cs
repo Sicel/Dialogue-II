@@ -10,14 +10,8 @@ public class DialogueNode : BaseNode
 
     public DialogueElementInfo Element
     {
-        get { return (DialogueElementInfo)dialogueTreeElement; }
-        set { dialogueTreeElement = value; }
-    }
-
-    public DialogueElement ElementE
-    {
-        get => (DialogueElement)treeElement;
-        set => treeElement = value;
+        get { return (DialogueElementInfo)treeElement.ElementInfo; }
+        set { treeElement.ElementInfo = value; }
     }
 
     public DialogueNode()
@@ -37,11 +31,11 @@ public class DialogueNode : BaseNode
         treeElement = new DialogueElement()
         {
             inputs = new List<DialogueTreeElement>(),
-            ouputs = new List<DialogueTreeElement>(),
+            outputs = new List<DialogueTreeElement>(),
             sentences = new List<string>()
         };
 
-        dialogueTreeElement = new DialogueElementInfo()
+        Element = new DialogueElementInfo()
         {
             WindowRect = windowRect,
             Index = index,
@@ -53,13 +47,23 @@ public class DialogueNode : BaseNode
         };
     }
 
+    public override void Init(DialogueTreeElement element)
+    {
+        base.Init(element);
+
+        Element = (DialogueElementInfo)element.ElementInfo;
+
+        sentences = Element.Sentences;
+        numSentences = sentences.Count;
+    }
+
     public override void DrawWindow()
     {
         base.DrawWindow();
 
         Event e = Event.current;
 
-        numSentences = EditorGUILayout.IntField("Number of Snetences", numSentences);
+        numSentences = EditorGUILayout.IntField("Number of Sentences", numSentences);
         if (numSentences < 0)
         {
             numSentences = 0;
@@ -112,10 +116,11 @@ public class DialogueNode : BaseNode
         EditorGUILayout.EndScrollView();
 
         UpdateDialogueTreeElement();
+        //UpdateDialogueTreeElementInfo();
 
         if (GUILayout.Button("Clear All", GUILayout.Height(20)))
         {
-            numSentences = 0;
+            numSentences = 1;
             sentences.Clear();
             //inputs.Clear();
             //inputRects.Clear();
@@ -133,6 +138,7 @@ public class DialogueNode : BaseNode
 
         outputs.Add(output);
         outputRects.Add(output.windowRect);
+        treeElement.outputs.Add(output.ElementE);
         Element.OutputIndexes.Add(output.index);
         Element.OutputRects.Add(output.windowRect);
     }
@@ -180,7 +186,7 @@ public class DialogueNode : BaseNode
             if (node.Equals(outputs[i]))
             {
                 outputs.Remove(outputs[i]);
-                inputRects.Remove(inputRects[i]);
+                outputRects.Remove(outputRects[i]);
 
                 Element.OutputIndexes.Remove(Element.OutputIndexes[i]);
                 Element.OutputRects.Remove(Element.OutputRects[i]);
@@ -189,13 +195,33 @@ public class DialogueNode : BaseNode
         }
     }
 
-    protected override void UpdateDialogueTreeElement()
+    protected override void UpdateDialogueTreeElementInfo()
     {
-        base.UpdateDialogueTreeElement();
+        base.UpdateDialogueTreeElementInfo();
 
         DialogueElementInfo dialogueElement = (DialogueElementInfo)dialogueTreeElement;
         dialogueElement.Sentences = sentences;
 
         Element = dialogueElement;
+    }
+
+    protected override void UpdateDialogueTreeElementInfo(IDialogueTreeElementInfo elementInfo)
+    {
+        base.UpdateDialogueTreeElementInfo(elementInfo);
+
+        DialogueElementInfo dialogueElement = (DialogueElementInfo)elementInfo;
+        dialogueElement.Sentences = sentences;
+
+        Element = dialogueElement;
+    }
+
+    protected override void UpdateDialogueTreeElement()
+    {
+        base.UpdateDialogueTreeElement();
+
+        DialogueElement dialogueElement = (DialogueElement)treeElement;
+
+        dialogueElement.sentences = sentences;
+        treeElement = dialogueElement;
     }
 }

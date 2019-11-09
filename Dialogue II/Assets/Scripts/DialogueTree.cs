@@ -11,59 +11,43 @@ public class DialogueTree : ISerializationCallbackReceiver
 {
     [SerializeField]
     int index;
-    DialogueTreeElement startingDialogue;
-    List<DialogueTreeElement> dialogues;
+    public DialogueTreeElement startingDialogue;
+    public List<DialogueTreeElement> dialogues = new List<DialogueTreeElement>();
+
+    public List<DialogueTreeElement> Dialogues
+    {
+        get
+        {
+            if (dialogues.Count == 0)
+            {
+                if (startingDialogue == null)
+                {
+                    startingDialogue = new DialogueElement();
+                }
+
+                dialogues.Add(startingDialogue);
+            }
+
+            return dialogues;
+        }
+
+        set => dialogues = value;
+    }
 
     [SerializeField]
     public List<IDialogueTreeElementInfo> serializedDialogueTree = new List<IDialogueTreeElementInfo>();
 
     public void OnBeforeSerialize()
     {
-        if (startingDialogue == null)
-        {
-            startingDialogue = new DialogueElement()
-            {
-                sentences = new List<string>(),
-                inputs = new List<DialogueTreeElement>(),
-                ouputs = new List<DialogueTreeElement>(),
-            };
-        }
         serializedDialogueTree.Clear();
-        AddNextDialogue(startingDialogue);
+        AddNextDialogue(Dialogues[0]);
     }
 
-    // TODO: Have the serializable list take in the property from DialogueTreeElements
     private void AddNextDialogue(DialogueTreeElement d)
     {
-        DialogueElementInfo newD;
-        ChoiceElementInfo newC;
-
-        //if (d is DialogueElement)
-        //{
-        //    DialogueElement dE = d as DialogueElement;
-        //    newD = new DialogueElementInfo()
-        //    {
-        //        Sentences = dE.sentences,
-        //        InputCount = dE.inputs.Count,
-        //        OutputCount = dE.ouputs.Count
-        //    };
-        //    serializedDialogueTree.Add(newD);
-        //}
-        //else if (d is ChoiceElement)
-        //{
-        //    ChoiceElement cE = d as ChoiceElement;
-        //    newC = new ChoiceElementInfo()
-        //    {
-        //        Choices = cE.choices,
-        //        InputCount = cE.inputs.Count,
-        //        OutputCount = cE.ouputs.Count
-        //    };
-        //    serializedDialogueTree.Add(newC);
-        //}
-
         serializedDialogueTree.Add(d.ElementInfo);
 
-        foreach(DialogueTreeElement element in d.ouputs)
+        foreach (DialogueTreeElement element in d.outputs)
         {
             AddNextDialogue(element);
         }

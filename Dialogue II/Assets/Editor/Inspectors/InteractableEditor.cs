@@ -15,6 +15,8 @@ public class InteractableEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        EditorGUILayout.LabelField(interactable.dialogueTree.dialogues.Count.ToString());
+
         base.OnInspectorGUI();
 
         if (GUILayout.Button("Open Dialogue Editor"))

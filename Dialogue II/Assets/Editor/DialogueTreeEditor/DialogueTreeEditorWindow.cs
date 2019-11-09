@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+// TODO: Add comments
 public class DialogueTreeEditorWindow : EditorWindow
 {
     public List<BaseNode> windows = new List<BaseNode>();
@@ -18,29 +19,46 @@ public class DialogueTreeEditorWindow : EditorWindow
     private bool makeTransitionOut = false;
 
     private Interactable gameObject;
-    private List<IDialogueTreeElementInfo> CurrentTree { get => gameObject.dialogueTree.serializedDialogueTree; }
+    private List<DialogueTreeElement> CurrentTree { get => gameObject.dialogueTree.Dialogues; }
+
+    private Rect box = new Rect(0, 0, 95, 35);
+    private Rect Box
+    {
+        get
+        {
+            box.center = new Vector2(position.width / 2, position.height / 2);
+            return box;
+        }
+    }
     public void ShowEditor(Interactable interactable)
     {
         gameObject = interactable;
         DialogueTreeEditorWindow editor = GetWindow<DialogueTreeEditorWindow>();
         editor.titleContent.text = interactable.gameObject.name + " DE";
         editor.Show();
+        //DisplayTree(interactable.dialogueTree.serializedDialogueTree);
         DisplayTree();
     }
 
     private void OnEnable()
     {
-        if (gameObject)
-            DisplayTree();
+        if (!gameObject)
+        {
+            GUI.Box(Box, "No Object Loaded");
+            return;
+        }
     }
 
     private void OnGUI()
     {
-        if (windows.Count == 0)
+        if (!gameObject)
         {
-            Rect box = new Rect();
-            box.center = new Vector2(position.width / 2, position.height / 2);
-            GUI.Box(box, "No Dialogue Yet");
+            GUI.Box(Box, "No Object Loaded");
+            return;
+        }
+        else if (windows.Count == 0)
+        {
+            GUI.Box(Box, "No Dialogue Yet");
         }
 
         Event e = Event.current;
@@ -166,6 +184,7 @@ public class DialogueTreeEditorWindow : EditorWindow
         
         EndWindows();
 
+        // TODO: Fix saving
         EditorUtility.SetDirty(gameObject);
     }
 
@@ -188,8 +207,7 @@ public class DialogueTreeEditorWindow : EditorWindow
                 dialogue.index = windows.Count;
 
                 windows.Add(dialogue);
-                // TODO: Update Interactable's dialogue tree
-                CurrentTree.Add(dialogue.Element);
+                CurrentTree.Add(dialogue.ElementE);
                 break;
             case "choice":
                 ChoiceNode choice = CreateInstance<ChoiceNode>();
@@ -197,7 +215,7 @@ public class DialogueTreeEditorWindow : EditorWindow
                 choice.index = windows.Count;
 
                 windows.Add(choice);
-                CurrentTree.Add(choice.Element);
+                CurrentTree.Add(choice.ElementE);
                 break;
             // TODO: Finish implementation
             case "addInDialogue":
@@ -262,6 +280,7 @@ public class DialogueTreeEditorWindow : EditorWindow
                 {
                     BaseNode selNode = windows[selectedIndex];
                     windows.RemoveAt(selectedIndex);
+                    CurrentTree.RemoveAt(selectedIndex);
 
                     foreach(BaseNode n in windows)
                     {
@@ -288,11 +307,11 @@ public class DialogueTreeEditorWindow : EditorWindow
         Handles.DrawBezier(startPos, endPos, startTan, endTan, Color.blue, null, 1);
     }
 
-    void DisplayTree()
+    void DisplayTree(List<IDialogueTreeElementInfo> sTree)
     {
         windows.Clear();
 
-        foreach(IDialogueTreeElementInfo elementInfo in CurrentTree)
+        foreach(IDialogueTreeElementInfo elementInfo in sTree)
         {
             DialogueNode newDialogue = null;
             ChoiceNode newChoice = null;
@@ -335,7 +354,78 @@ public class DialogueTreeEditorWindow : EditorWindow
 
         for (int i = 0; i < windows.Count; i++)
         {
-            IDialogueTreeElementInfo info = CurrentTree[i];
+            IDialogueTreeElementInfo info = sTree[i];
+
+            // Sets inputs
+            for (int j = 0; j < info.InputCount; j++)
+            {
+                if (!windows[i].inputs.Contains(windows[info.InputIndexes[j]]))
+                {
+                    windows[i].inputs.Add(windows[info.InputIndexes[j]]);
+                }
+            }
+
+            // Sets outputs
+            for (int j = 0; j < info.OutputCount; j++)
+            {
+                if (!windows[i].outputs.Contains(windows[info.OutputIndexes[j]]))
+                {
+                    windows[i].outputs.Add(windows[info.OutputIndexes[j]]);
+                }
+            }
+
+            if (windows[i] is ChoiceNode)
+            {
+                ChoiceElementInfo cInfo = (ChoiceElementInfo)info;
+
+                // Copy of node to edit
+                ChoiceNode choice = windows[i] as ChoiceNode;
+
+                // sets outputs with corresponding choice
+                for (int j = 0; j < cInfo.ChoiceDialogueKeys.Count; j++)
+                {
+                    choice.choiceNodePair.Add(j, windows[cInfo.ChoiceDialogueValues[j]]);
+                }
+
+                // Rewrites previous node
+                windows[i] = choice;
+            }
+        }
+    }
+
+    void DisplayTree()
+    {
+        // TODO: Fix connections on open
+        windows.Clear();
+
+        foreach (DialogueTreeElement element in CurrentTree)
+        {
+            DialogueNode newDialogue = null;
+            ChoiceNode newChoice = null;
+
+            if (element is DialogueElement)
+            {
+                DialogueElementInfo dialogue = (DialogueElementInfo)element.ElementInfo;
+
+                newDialogue = CreateInstance<DialogueNode>();
+                newDialogue.Init(element);
+
+                windows.Add(newDialogue);
+            }
+            else if (element is ChoiceElement)
+            {
+                ChoiceElementInfo choice = (ChoiceElementInfo)element.ElementInfo;
+
+                newChoice = CreateInstance<ChoiceNode>();
+                newChoice.Init(element);
+
+                windows.Add(newChoice);
+            }
+        }
+
+        for (int i = 0; i < windows.Count; i++)
+        {
+            IDialogueTreeElementInfo info = windows[i].ElementE.ElementInfo;
 
             // Sets inputs
             for (int j = 0; j < info.InputCount; j++)

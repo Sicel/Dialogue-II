@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: Delete this and make a single file for the struct
 /// <summary>
 /// Base for serializable dialogue tree elements
 /// </summary>

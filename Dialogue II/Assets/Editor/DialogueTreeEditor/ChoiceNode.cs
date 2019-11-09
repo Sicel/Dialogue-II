@@ -15,14 +15,8 @@ public class ChoiceNode : BaseNode
 
     public ChoiceElementInfo Element
     {
-        get { return (ChoiceElementInfo)dialogueTreeElement; }
-        set { dialogueTreeElement = value; }
-    }
-
-    public ChoiceElement ElementE
-    {
-        get => (ChoiceElement)treeElement;
-        set => treeElement = value;
+        get { return (ChoiceElementInfo)treeElement.ElementInfo; }
+        set { treeElement.ElementInfo = value; }
     }
 
     public int NumChoices { get => choices.Count; }
@@ -42,7 +36,7 @@ public class ChoiceNode : BaseNode
         choiceRects = new List<Rect>();
         choiceNodePair = new Dictionary<int, BaseNode>();
 
-        dialogueTreeElement = new ChoiceElementInfo()
+        Element = new ChoiceElementInfo()
         {
             WindowRect = windowRect,
             Index = index,
@@ -55,6 +49,20 @@ public class ChoiceNode : BaseNode
             ChoiceDialogueKeys = new List<int>(),
             ChoiceDialogueValues = new List<int>()
         };
+    }
+
+    public override void Init(DialogueTreeElement element)
+    {
+        base.Init(element);
+
+        ChoiceElement choiceElement = (ChoiceElement)element;
+        Element = (ChoiceElementInfo)treeElement.ElementInfo;
+
+        choices = choiceElement.choices;
+
+        prompt = Element.Prompt;
+        numChoices = choices.Count;
+        choiceRects = Element.ChoiceRects;
     }
 
     public override void DrawWindow()
@@ -137,10 +145,11 @@ public class ChoiceNode : BaseNode
         AddChoiceRects();
 
         UpdateDialogueTreeElement();
+        //UpdateDialogueTreeElementInfo();
 
         if (GUILayout.Button("Clear All", GUILayout.Height(20)))
         {
-            numChoices = 0;
+            numChoices = 1;
             inputs.Clear();
             inputRects.Clear();
             outputs.Clear();
@@ -186,6 +195,7 @@ public class ChoiceNode : BaseNode
 
         outputs.Add(output);
         outputRects.Add(output.windowRect);
+        treeElement.outputs.Add(output.ElementE);
 
         Element.OutputIndexes.Add(output.index);
     }
@@ -243,9 +253,9 @@ public class ChoiceNode : BaseNode
         }
     }
 
-    protected override void UpdateDialogueTreeElement()
+    protected override void UpdateDialogueTreeElementInfo()
     {
-        base.UpdateDialogueTreeElement();
+        base.UpdateDialogueTreeElementInfo();
 
         ChoiceElementInfo choiceElement = (ChoiceElementInfo)dialogueTreeElement;
 
@@ -253,5 +263,27 @@ public class ChoiceNode : BaseNode
         choiceElement.Choices = choices;
         choiceElement.ChoiceRects = choiceRects;
         Element = choiceElement;
+    }
+
+    protected override void UpdateDialogueTreeElementInfo(IDialogueTreeElementInfo elementInfo)
+    {
+        base.UpdateDialogueTreeElementInfo(elementInfo);
+
+        ChoiceElementInfo choiceElement = (ChoiceElementInfo)dialogueTreeElement;
+
+        choiceElement.Prompt = prompt;
+        choiceElement.Choices = choices;
+        choiceElement.ChoiceRects = choiceRects;
+        Element = choiceElement;
+    }
+
+    protected override void UpdateDialogueTreeElement()
+    {
+        base.UpdateDialogueTreeElement();
+
+        ChoiceElement choiceElement = (ChoiceElement)treeElement;
+
+        choiceElement.choices = choices;
+        treeElement = choiceElement;
     }
 }

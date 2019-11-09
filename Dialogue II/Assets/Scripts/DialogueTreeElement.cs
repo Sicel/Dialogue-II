@@ -8,7 +8,52 @@ using UnityEngine;
 public class DialogueTreeElement
 {
     //public int index;
-    public IDialogueTreeElementInfo ElementInfo;
+    protected IDialogueTreeElementInfo elementInfo;
+    public IDialogueTreeElementInfo ElementInfo
+    {
+        get
+        {
+            if (this is DialogueElement)
+            {
+                if (elementInfo == null)
+                {
+                    elementInfo = new DialogueElementInfo()
+                    {
+                        InputIndexes = new List<int>(),
+                        InputRects = new List<Rect>(),
+                        OutputIndexes = new List<int>(),
+                        OutputRects = new List<Rect>(),
+                        Sentences = new List<string>()
+                    };
+                }
+
+                return (DialogueElementInfo)elementInfo;
+            }
+            else if (this is ChoiceElement)
+            {
+                if (elementInfo == null)
+                {
+                    elementInfo = new ChoiceElementInfo()
+                    {
+                        InputIndexes = new List<int>(),
+                        InputRects = new List<Rect>(),
+                        OutputIndexes = new List<int>(),
+                        OutputRects = new List<Rect>(),
+                        Choices = new List<string>(),
+                        ChoiceRects = new List<Rect>(),
+                        ChoiceDialogueKeys = new List<int>(),
+                        ChoiceDialogueValues = new List<int>()
+                    };
+                }
+
+                return (ChoiceElementInfo)elementInfo;
+            }
+
+            return elementInfo;
+        }
+        set => elementInfo = value;
+    }
+
     public List<DialogueTreeElement> inputs = new List<DialogueTreeElement>();
-    public List<DialogueTreeElement> ouputs = new List<DialogueTreeElement>();
+    public List<DialogueTreeElement> outputs = new List<DialogueTreeElement>();
 }

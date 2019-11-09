@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO: Display dialogue on screen / Dialogue Manager
 /// <summary>
 /// Anything that can be interacted with
 /// </summary>

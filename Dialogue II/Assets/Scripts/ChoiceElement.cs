@@ -7,10 +7,5 @@ using UnityEngine;
 /// </summary>
 public class ChoiceElement : DialogueTreeElement
 {
-    new public ChoiceElementInfo ElementInfo
-    {
-        get => (ChoiceElementInfo)base.ElementInfo;
-        set => base.ElementInfo = value;
-    }
     public List<string> choices = new List<string>();
 }

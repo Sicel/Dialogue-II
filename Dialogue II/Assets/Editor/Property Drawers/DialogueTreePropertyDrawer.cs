@@ -15,7 +15,7 @@ public class DialogueTreePropertyDrawer : PropertyDrawer
         interactable = (Interactable)property.serializedObject.targetObject;
         tree = interactable.dialogueTree.serializedDialogueTree;
         label.text = label.text + " " + tree.Count; 
-        //base.OnGUI(position, property, label);
+
         EditorGUI.BeginProperty(position, label, property);
 
         SerializedProperty index = property.FindPropertyRelative("index");
