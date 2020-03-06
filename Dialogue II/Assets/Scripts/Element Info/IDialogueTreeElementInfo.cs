@@ -9,6 +9,11 @@ public interface IDialogueTreeElementInfo
 {
     #region Properties
     /// <summary>
+    /// Is this struct empty
+    /// </summary>
+    bool IsEmpty { get; }
+
+    /// <summary>
     /// Location in dialogue tree
     /// </summary>
     int Index { get; set; }
@@ -20,7 +25,7 @@ public interface IDialogueTreeElementInfo
     /// <summary>
     /// Number of inputs connected to node
     /// </summary>
-    int InputCount { get; set; }
+    int InputCount { get; }
 
     /// <summary>
     /// Rect of inputs in Dialogue Tree Editor Window
@@ -35,7 +40,7 @@ public interface IDialogueTreeElementInfo
     /// <summary>
     /// Number of outputs node has
     /// </summary>
-    int OutputCount { get; set; }
+    int OutputCount { get; }
 
     /// <summary>
     /// Rect of outputs in Dialogue Tree Editor Window
@@ -48,23 +53,13 @@ public interface IDialogueTreeElementInfo
     List<int> OutputIndexes { get; set; }
 
     /// <summary>
-    /// Location of first input in dialogue tree
-    /// </summary>
-    int IndexofFirstInput { get; set; }
-
-    /// <summary>
-    /// Location of first output in dialogue Tree
-    /// </summary>
-    int IndexOfFirstOutput { get; set; }
-
-    /// <summary>
     /// Does this node have any inputs?
     /// </summary>
-    bool HasInputs { get; set; }
+    bool HasInputs { get; }
 
     /// <summary>
     /// Does node have any outputs?
     /// </summary>
-    bool HasOutputs { get; set; }
+    bool HasOutputs { get; }
     #endregion
 }

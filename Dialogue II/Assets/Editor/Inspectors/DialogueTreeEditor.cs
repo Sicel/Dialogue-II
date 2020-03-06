@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(Interactable))]
-public class InteractableEditor : Editor
+[CustomEditor(typeof(DialogueTree))]
+public class DialogueTreeEditor : Editor
 {
-    Interactable interactable;
+    DialogueTree interactable;
 
     private void OnEnable()
     {
-        interactable = (Interactable)target;
+        interactable = (DialogueTree)target;
     }
 
     public override void OnInspectorGUI()
     {
-        EditorGUILayout.LabelField(interactable.dialogueTree.dialogues.Count.ToString());
+        //EditorGUILayout.LabelField(interactable.dialogueTree.dialogues.Count.ToString());
 
         base.OnInspectorGUI();
+
+        EditorGUILayout.LabelField(interactable.dialogues.Count.ToString());
 
         if (GUILayout.Button("Open Dialogue Editor"))
         {

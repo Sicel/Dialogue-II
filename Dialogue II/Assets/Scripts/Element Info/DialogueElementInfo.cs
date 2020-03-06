@@ -15,6 +15,7 @@ public struct DialogueElementInfo : IDialogueTreeElementInfo
     /// </summary>
     public int Index { get; set; }
 
+    // TODO: Replace with window position
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.WindowRect"/>
     /// </summary>
@@ -23,7 +24,7 @@ public struct DialogueElementInfo : IDialogueTreeElementInfo
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.InputCount"/>
     /// </summary>
-    public int InputCount { get; set; }
+    public int InputCount { get => InputIndexes.Count; }
 
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.InputRects"/>
@@ -38,7 +39,7 @@ public struct DialogueElementInfo : IDialogueTreeElementInfo
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.OutputCount"/>
     /// </summary>
-    public int OutputCount { get; set; }
+    public int OutputCount { get => OutputIndexes.Count; }
 
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.OutputRects"/>
@@ -51,24 +52,14 @@ public struct DialogueElementInfo : IDialogueTreeElementInfo
     public List<int> OutputIndexes { get; set; }
 
     /// <summary>
-    /// See <see cref="IDialogueTreeElementInfo.IndexofFirstInput"/>
-    /// </summary>
-    public int IndexofFirstInput { get; set; }
-
-    /// <summary>
-    /// See <see cref="IDialogueTreeElementInfo.IndexOfFirstOutput"/>
-    /// </summary>
-    public int IndexOfFirstOutput { get; set; }
-
-    /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.HasInputs"/>
     /// </summary>
-    public bool HasInputs { get => InputCount > 0 ? true : false; set => HasInputs = value; }
+    public bool HasInputs { get => InputCount > 0 ? true : false; }
 
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.HasOutputs"/>
     /// </summary>
-    public bool HasOutputs { get => OutputCount > 0 ? true : false; set => HasOutputs = value; }
+    public bool HasOutputs { get => OutputCount > 0 ? true : false; }
     #endregion
 
     #region Dialogue Properties

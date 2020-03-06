@@ -7,12 +7,13 @@ using UnityEngine;
 /// List of DialogueElements
 /// </summary>
 [Serializable]
-public class DialogueTree : ISerializationCallbackReceiver
+public class DialogueTree : MonoBehaviour, ISerializationCallbackReceiver
 {
     [SerializeField]
     int index;
     public DialogueTreeElement startingDialogue;
     public List<DialogueTreeElement> dialogues = new List<DialogueTreeElement>();
+    public List<IDialogueTreeElementInfo> serializedDialogueTree = new List<IDialogueTreeElementInfo>();
 
     public List<DialogueTreeElement> Dialogues
     {
@@ -34,17 +35,54 @@ public class DialogueTree : ISerializationCallbackReceiver
         set => dialogues = value;
     }
 
-    [SerializeField]
-    public List<IDialogueTreeElementInfo> serializedDialogueTree = new List<IDialogueTreeElementInfo>();
 
+    #region Serialization
     public void OnBeforeSerialize()
     {
+        if (startingDialogue == null)
+        {
+            startingDialogue = new DialogueElement();
+        }
         serializedDialogueTree.Clear();
-        AddNextDialogue(Dialogues[0]);
+        AddNextDialogue(startingDialogue);
     }
 
     private void AddNextDialogue(DialogueTreeElement d)
     {
+        DialogueElementInfo dialogueElementInfo;
+        ChoiceElementInfo choiceElementInfo;
+
+        switch (d.DialogueType)
+        {
+            case DialogueType.Dialogue:
+                dialogueElementInfo = new DialogueElementInfo()
+                {
+                    WindowRect = new Rect(0, 0, 300, 300),
+                    InputIndexes = new List<int>(),
+                    InputRects = new List<Rect>(),
+                    OutputIndexes = new List<int>(),
+                    OutputRects = new List<Rect>(),
+
+                    Sentences = new List<string>()
+                };
+                break;
+            case DialogueType.Choice:
+                choiceElementInfo = new ChoiceElementInfo()
+                {
+                    WindowRect = new Rect(0, 0, 300, 300),
+                    InputIndexes = new List<int>(),
+                    InputRects = new List<Rect>(),
+                    OutputIndexes = new List<int>(),
+                    OutputRects = new List<Rect>(),
+
+                    Choices = new List<string>(),
+                    ChoiceRects = new List<Rect>(),
+                    ChoiceDialogueKeys = new List<int>(),
+                    ChoiceDialogueValues = new List<int>()
+                };
+                break;
+        }
+
         serializedDialogueTree.Add(d.ElementInfo);
 
         foreach (DialogueTreeElement element in d.outputs)
@@ -107,4 +145,5 @@ public class DialogueTree : ISerializationCallbackReceiver
 
         return index;
     }
+    #endregion
 }

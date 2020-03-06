@@ -10,6 +10,11 @@ public struct ChoiceElementInfo : IDialogueTreeElementInfo
 {
     #region Interface Properties
     /// <summary>
+    /// See <see cref="IDialogueTreeElementInfo.IsEmpty"/>
+    /// </summary>
+    public bool IsEmpty { get; }
+
+    /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.Index"/>
     /// </summary>
     public int Index { get; set; }
@@ -22,7 +27,7 @@ public struct ChoiceElementInfo : IDialogueTreeElementInfo
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.InputCount"/>
     /// </summary>
-    public int InputCount { get; set; }
+    public int InputCount { get => InputIndexes.Count; }
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.InputRects"/>
     /// </summary>
@@ -36,7 +41,7 @@ public struct ChoiceElementInfo : IDialogueTreeElementInfo
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.OutputCount"/>
     /// </summary>
-    public int OutputCount { get; set; }
+    public int OutputCount { get => OutputIndexes.Count; }
 
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.OutputRects"/>
@@ -49,24 +54,14 @@ public struct ChoiceElementInfo : IDialogueTreeElementInfo
     public List<int> OutputIndexes { get; set; }
 
     /// <summary>
-    /// See <see cref="IDialogueTreeElementInfo.IndexofFirstInput"/>
-    /// </summary>
-    public int IndexofFirstInput { get; set; }
-
-    /// <summary>
-    /// See <see cref="IDialogueTreeElementInfo.IndexOfFirstOutput"/>
-    /// </summary>
-    public int IndexOfFirstOutput { get; set; }
-
-    /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.HasInputs"/>
     /// </summary>
-    public bool HasInputs { get => InputCount > 0 ? true : false; set => HasInputs = value; }
+    public bool HasInputs { get => InputCount > 0 ? true : false; }
 
     /// <summary>
     /// See <see cref="IDialogueTreeElementInfo.HasOutputs"/>
     /// </summary>
-    public bool HasOutputs { get => OutputCount > 0 ? true : false; set => HasOutputs = value; }
+    public bool HasOutputs { get => OutputCount > 0 ? true : false; }
     #endregion
 
     #region Choice Properties
@@ -83,7 +78,7 @@ public struct ChoiceElementInfo : IDialogueTreeElementInfo
     /// <summary>
     /// Number of choices
     /// </summary>
-    public int NumChoices { get; set; }
+    public int NumChoices { get => Choices.Count; }
     
     /// <summary>
     /// Rect for choice nodes in Dialogue Tree Editor Window

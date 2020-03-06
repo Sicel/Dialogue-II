@@ -18,8 +18,8 @@ public class DialogueTreeEditorWindow : EditorWindow
     private bool makeTransitionIn = false;
     private bool makeTransitionOut = false;
 
-    private Interactable gameObject;
-    private List<DialogueTreeElement> CurrentTree { get => gameObject.dialogueTree.Dialogues; }
+    private DialogueTree dialogueTree;
+    private List<DialogueTreeElement> CurrentTree { get => dialogueTree.Dialogues; }
 
     private Rect box = new Rect(0, 0, 95, 35);
     private Rect Box
@@ -30,11 +30,13 @@ public class DialogueTreeEditorWindow : EditorWindow
             return box;
         }
     }
-    public void ShowEditor(Interactable interactable)
+
+    public void ShowEditor(DialogueTree dialogueTree)
     {
-        gameObject = interactable;
+        //this.interactable = interactable;
         DialogueTreeEditorWindow editor = GetWindow<DialogueTreeEditorWindow>();
-        editor.titleContent.text = interactable.gameObject.name + " DE";
+        this.dialogueTree = dialogueTree;
+        editor.titleContent.text = dialogueTree.gameObject.name + " DE";
         editor.Show();
         //DisplayTree(interactable.dialogueTree.serializedDialogueTree);
         DisplayTree();
@@ -42,7 +44,7 @@ public class DialogueTreeEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-        if (!gameObject)
+        if (!dialogueTree)
         {
             GUI.Box(Box, "No Object Loaded");
             return;
@@ -51,7 +53,7 @@ public class DialogueTreeEditorWindow : EditorWindow
 
     private void OnGUI()
     {
-        if (!gameObject)
+        if (!dialogueTree)
         {
             GUI.Box(Box, "No Object Loaded");
             return;
@@ -185,7 +187,7 @@ public class DialogueTreeEditorWindow : EditorWindow
         EndWindows();
 
         // TODO: Fix saving
-        EditorUtility.SetDirty(gameObject);
+        EditorUtility.SetDirty(dialogueTree);
     }
 
     private void DrawNodeWindow(int id)
@@ -279,8 +281,8 @@ public class DialogueTreeEditorWindow : EditorWindow
                 if (clickedOnWindow)
                 {
                     BaseNode selNode = windows[selectedIndex];
-                    windows.RemoveAt(selectedIndex);
                     CurrentTree.RemoveAt(selectedIndex);
+                    windows.RemoveAt(selectedIndex);
 
                     foreach(BaseNode n in windows)
                     {
@@ -295,16 +297,23 @@ public class DialogueTreeEditorWindow : EditorWindow
     {
         Vector2 startPos = new Vector2(start.x + (start.width / 2), start.y + (start.height / 2));
         Vector2 endPos = new Vector2(end.x + (end.width / 2), end.y + (end.height / 2));
+        Vector2 midPos = (startPos + endPos) / 2;
         Vector2 startTan = startPos + Vector2.right * 50;
         Vector2 endTan = endPos + Vector2.left * 50;
         Color shadowCol = new Color(0, 0, 0, 0.06f);
 
+        //Handles.color = Color.blue;
+        //Handles.DrawLine(startPos, midPos);
+        //Handles.color = Color.red;
+        //Handles.DrawLine(midPos, endPos);
+
         for (int i = 0; i < 3; i++)
         {
-            Handles.DrawBezier(startPos, endPos, startTan, endTan, shadowCol, null, (i + 1) * 5);
+        //    Handles.DrawBezier(startPos, endPos, startTan, endTan, shadowCol, null, (i + 1) * 5);
         }
-
-        Handles.DrawBezier(startPos, endPos, startTan, endTan, Color.blue, null, 1);
+        
+        Handles.DrawBezier(startPos, endPos, startTan, endTan, Color.red, null, 1);
+        
     }
 
     void DisplayTree(List<IDialogueTreeElementInfo> sTree)

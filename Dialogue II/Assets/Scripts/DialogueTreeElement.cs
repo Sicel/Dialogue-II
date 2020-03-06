@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum DialogueType
+{
+    Dialogue,
+    Choice
+}
+
 /// <summary>
 /// A node in the dialogue tree
 /// </summary>
-public class DialogueTreeElement
+public abstract class DialogueTreeElement
 {
     //public int index;
     protected IDialogueTreeElementInfo elementInfo;
@@ -54,6 +60,20 @@ public class DialogueTreeElement
         set => elementInfo = value;
     }
 
+    public DialogueType DialogueType
+    {
+        get
+        {
+            if (this is DialogueElement)
+                dialogueType = DialogueType.Dialogue;
+            else if (this is ChoiceElement)
+                dialogueType = DialogueType.Choice;
+
+            return dialogueType;
+        }
+    }
+
     public List<DialogueTreeElement> inputs = new List<DialogueTreeElement>();
     public List<DialogueTreeElement> outputs = new List<DialogueTreeElement>();
+    private DialogueType dialogueType;
 }

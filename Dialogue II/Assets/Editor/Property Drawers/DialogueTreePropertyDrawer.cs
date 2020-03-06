@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomPropertyDrawer(typeof(DialogueTree))]
+//[CustomPropertyDrawer(typeof(DialogueTree))]
 public class DialogueTreePropertyDrawer : PropertyDrawer
 {
     List<IDialogueTreeElementInfo> tree;
